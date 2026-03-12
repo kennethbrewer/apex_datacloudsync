@@ -37,7 +37,7 @@
         "ssot__PostalCodeId__c": "BillingPostalCode",
         "ssot__CountryId__c": "BillingCountry"
        },
-       "lookups":{         #optional  
+       "lookups":{          #optional  
       }
     }
   ]

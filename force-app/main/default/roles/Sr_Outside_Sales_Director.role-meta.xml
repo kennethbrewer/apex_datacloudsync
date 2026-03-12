@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Role xmlns="http://soap.sforce.com/2006/04/metadata"><contactAccessLevel>Edit</contactAccessLevel><description>Sr Outside Sales Director</description><mayForecastManagerShare>false</mayForecastManagerShare><name>Sr Outside Sales Director</name><opportunityAccessLevel>Edit</opportunityAccessLevel><parentRole>AMERICAS_AMERICAS_DIRECTOR_of_BRANCH_SALES</parentRole></Role>

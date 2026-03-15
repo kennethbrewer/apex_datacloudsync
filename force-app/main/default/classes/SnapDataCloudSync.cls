@@ -37,7 +37,7 @@
         "ssot__PostalCodeId__c": "BillingPostalCode",
         "ssot__CountryId__c": "BillingCountry"
        },
-       "lookups":{          #optional  
+       "lookups":{         #optional  
       }
     }
   ]
@@ -135,7 +135,7 @@ public with sharing class SnapDataCloudSync {
     @InvocableMethod(
         label='Read Data Cloud/Write CRM (Config-driven)'
         description='Reads Data Cloud objects per JSON static resource config, writes to CRMfiltered by Source Ids. Returns per-id field/value pairs aggregated across queries.'
-        callout=false
+        callout=true
     )
     public static List<Result> run(List<Request> requests) {
         if (requests == null || requests.isEmpty()) {
@@ -532,20 +532,20 @@ public with sharing class SnapDataCloudSync {
 		//    Key   = DeveloperName__c
 		//    Value = Id__c
 		// --------------------------------------------
-		Map<Id, String> mapSnapRT = new Map<Id, String>();
-		Map<String, Id> mapADIRT = new Map<String, Id>();
-		for (RecordType_Home__dlm rec : [
-			SELECT Id__c, DeveloperName__c, DataSource__c
-			FROM RecordType_Home__dlm
-			WHERE SobjectType__c = :targetObject
-		]) {
-			if (rec.DataSource__c != 'Salesforce_Home') {
-				mapSnapRT.put(rec.Id__c, rec.DeveloperName__c);
-			}
-			if (rec.DataSource__c == 'Salesforce_Home') {
-				mapADIRT.put(rec.DeveloperName__c, rec.Id__c);
-			}
-		}
+            Map<Id, String> mapSnapRT = new Map<Id, String>();
+            Map<String, Id> mapADIRT = new Map<String, Id>();
+            for (RecordType_Home__dlm rec : [
+                SELECT Id__c, DeveloperName__c, DataSource__c
+                FROM RecordType_Home__dlm
+                WHERE SobjectType__c = :targetObject
+            ]) {
+                if (rec.DataSource__c != 'Salesforce_Home') {
+                    mapSnapRT.put(rec.Id__c, rec.DeveloperName__c);
+                }
+                if (rec.DataSource__c == 'Salesforce_Home') {
+                    mapADIRT.put(rec.DeveloperName__c, rec.Id__c);
+                }
+            }
 		// --------------------------------------------
 		// 3. Third map<Id, Id>
 		//    Key   = Id__c from first map

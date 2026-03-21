@@ -59,12 +59,180 @@
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Dealer_1</name>
+        <label>Get Dealer_1</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Dealer_2</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Dealer_c__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Snap_Id__c</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Dealer_2</name>
+        <label>Get Dealer_2</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Dealer_3</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Dealer_2_c__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Snap_Id__c</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Dealer_3</name>
+        <label>Get Dealer_3</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Dealer_Name</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Dealer_3_c__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Snap_Id__c</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Dealer_Name</name>
+        <label>Get Dealer_Name</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Lead_Sales_Owner</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Dealer_Name_c__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Snap_Id__c</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Lead_Sales_Owner</name>
+        <label>Get Lead Sales Owner</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>RT_Maps</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Lead_Sales_Owner_c__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>User</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Snap_Id__c</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Owner_Id</name>
+        <label>Get Owner Id</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Dealer_1</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>User</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Snap_Id__c</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_RT</name>
+        <label>Get RT</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Owner_Id</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>RecordTypeIdSNAP__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.RecordTypeId__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>SObjectApiName__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Lead</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>RecordType_Map__mdt</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>RecordTypeIdADI__c</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
     <recordUpdates>
         <name>Update_ADI_Lead_Records</name>
         <label>Update ADI Lead Records</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-                <filterLogic>and</filterLogic>
+        <filterLogic>and</filterLogic>
         <filters>
             <field>Snap_Id__c</field>
             <operator>EqualTo</operator>
@@ -1189,6 +1357,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Snap_Id__c</field>
+            <value>
+                <elementReference>$Record.Id__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Speak_English__c</field>
             <value>
                 <elementReference>$Record.Speak_English_c__c</elementReference>
@@ -1471,176 +1645,7 @@
             </value>
         </inputAssignments>
         <object>Lead</object>
-        
     </recordUpdates>
-    <recordLookups>
-        <name>Get_Dealer_1</name>
-        <label>Get Dealer_1</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Get_Dealer_2</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Snap_Id__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>$Record.Dealer_c__c</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Account</object>
-        <queriedFields>Id</queriedFields>
-        <queriedFields>Snap_Id__c</queriedFields>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <name>Get_Dealer_2</name>
-        <label>Get Dealer_2</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Get_Dealer_3</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Snap_Id__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>$Record.Dealer_2_c__c</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Account</object>
-        <queriedFields>Id</queriedFields>
-        <queriedFields>Snap_Id__c</queriedFields>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <name>Get_Dealer_3</name>
-        <label>Get Dealer_3</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Get_Dealer_Name</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Snap_Id__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>$Record.Dealer_3_c__c</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Account</object>
-        <queriedFields>Id</queriedFields>
-        <queriedFields>Snap_Id__c</queriedFields>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <name>Get_Dealer_Name</name>
-        <label>Get Dealer_Name</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Get_Lead_Sales_Owner</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Snap_Id__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>$Record.Dealer_Name_c__c</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Account</object>
-        <queriedFields>Id</queriedFields>
-        <queriedFields>Snap_Id__c</queriedFields>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <name>Get_Lead_Sales_Owner</name>
-        <label>Get Lead Sales Owner</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>RT_Maps</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Snap_Id__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>$Record.Lead_Sales_Owner_c__c</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>User</object>
-        <queriedFields>Id</queriedFields>
-        <queriedFields>Snap_Id__c</queriedFields>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <name>Get_Owner_Id</name>
-        <label>Get Owner Id</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Get_Dealer_1</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Snap_Id__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>$Record.Id__c</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>User</object>
-        <queriedFields>Id</queriedFields>
-        <queriedFields>Snap_Id__c</queriedFields>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <name>Get_RT</name>
-        <label>Get RT</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Get_Owner_Id</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>RecordTypeIdSNAP__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>$Record.RecordTypeId__c</elementReference>
-            </value>
-        </filters>
-        <filters>
-            <field>SObjectApiName__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>Lead</stringValue>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>RecordType_Map__mdt</object>
-        <queriedFields>Id</queriedFields>
-        <queriedFields>RecordTypeIdADI__c</queriedFields>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
     <start>
         <locationX>0</locationX>
         <locationY>0</locationY>
@@ -1659,7 +1664,7 @@
         <recordTriggerType>Update</recordTriggerType>
         <triggerType>DataCloudDataChange</triggerType>
     </start>
-    <status>Active</status>
+    <status>Draft</status>
     <variables>
         <name>NewRT</name>
         <dataType>String</dataType>

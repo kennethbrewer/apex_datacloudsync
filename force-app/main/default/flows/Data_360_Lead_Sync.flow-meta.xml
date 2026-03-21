@@ -38,8 +38,8 @@
         <dataType>String</dataType>
         <expression>IF(ISBLANK({!Get_Owner_Id.Id}), {!$User.Id}, {!Get_Owner_Id.Id})</expression>
     </formulas>
-    <interviewLabel>Data 360 Lead Sync {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>Data 360 Lead Sync</label>
+    <interviewLabel>Data 360 SNAP to ADI Lead Creates {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Data 360 SNAP to ADI Lead Creates</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -1178,6 +1178,12 @@
             <field>SnapAV_Dealer_ID__c</field>
             <value>
                 <elementReference>$Record.SnapAV_Dealer_ID_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Snap_Id__c</field>
+            <value>
+                <elementReference>$Record.Id__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>

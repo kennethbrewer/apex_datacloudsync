@@ -887,13 +887,7 @@
             </value>
         </inputAssignments>
         <object>Account</object>
-            <filters>
-            <field>Snap_Id__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>$Record.Id__c</elementReference>
-            </value>
-        </filters>
+      
     </recordUpdates>
     <recordLookups>
         <name>Get_Commercial_BDM</name>
@@ -1275,7 +1269,7 @@
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Lead</object>
+        <object>User</object>
         <queriedFields>Id</queriedFields>
         <queriedFields>Snap_Id__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>

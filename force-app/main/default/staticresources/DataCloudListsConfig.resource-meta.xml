@@ -1,0 +1,5 @@
+<StaticResource xmlns="http://soap.sforce.com/2006/04/metadata">
+    <cacheControl>Public</cacheControl>
+    <contentType>application/json</contentType>
+    <description>Configuration JSON for Data Cloud Related Lists</description>
+</StaticResource>

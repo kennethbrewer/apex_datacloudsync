@@ -2,6 +2,45 @@
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Assigning_Account_Create_Faults</name>
+        <label>Assigning Account Create Faults</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>Faultmsg</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Fault_Log_Error</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assigning_Account_Update_faults</name>
+        <label>Assigning Account Update faults</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>Faultmsg</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Fault_Error_Log</targetReference>
+        </connector>
+    </assignments>
+    <constants>
+        <name>CreateAccount</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>create Accounts SNAP to ADI</stringValue>
+        </value>
+    </constants>
     <constants>
         <name>SystemUserRecord</name>
         <dataType>String</dataType>
@@ -22,7 +61,7 @@
                 <leftValueReference>$Record.LastModifiedDate__c</leftValueReference>
                 <operator>GreaterThan</operator>
                 <rightValue>
-                    <elementReference>Get_Account_Global_ID.Last_Synced_Timestamp__c</elementReference>
+                    <elementReference>$Record.Last_Sync_Timestamp__c</elementReference>
                 </rightValue>
             </conditions>
             <connector>
@@ -37,7 +76,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Get_ISM_Account_Records</targetReference>
+            <targetReference>Get_RT</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Is Snap Sync Data</defaultConnectorLabel>
         <rules>
@@ -51,14 +90,7 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>Get_CRM_Record_by_Global_ID.Global_Account_ID__c</leftValueReference>
-                <operator>IsBlank</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_RT.Id</leftValueReference>
+                <leftValueReference>$Record.Global_Account_ID__c</leftValueReference>
                 <operator>IsBlank</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
@@ -92,15 +124,21 @@
             <label>Does Not Exist - Create</label>
         </rules>
     </decisions>
+    <description>25/29 fields+</description>
     <environments>Default</environments>
+    <formulas>
+        <name>OwnerOrUserid</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!varUSERID.Id}), {!$User.Id}, {!varUSERID.Id})</expression>
+    </formulas>
     <formulas>
         <description>For Create Records the first entry is blank</description>
         <name>SetRecordLastSyncDatetimetoLastmodifiedornull</name>
         <dataType>DateTime</dataType>
         <expression>IF({!Get_System_User.RecordTypeIdADI__c}={!$Record.CreatedById__c}, {!$Record.LastModifiedDate__c}, NULL)</expression>
     </formulas>
-    <interviewLabel>Data 360 Accounts Sync {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>Data 360 Accounts Sync</label>
+    <interviewLabel>Data 360 Accounts Upsert SNAP to ADI {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Data 360 Accounts Upsert SNAP to ADI</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -125,10 +163,37 @@
         <label>Create SNAP Account Records in ADI</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <faultConnector>
+            <targetReference>Assigning_Account_Create_Faults</targetReference>
+        </faultConnector>
         <inputAssignments>
             <field>ACH_Collection_Status__c</field>
             <value>
                 <elementReference>$Record.ACH_Collection_Status_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ADI_Account_Owner__c</field>
+            <value>
+                <elementReference>$Record.ADI_Account_Owner_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ADI_Owning_Branch__c</field>
+            <value>
+                <elementReference>$Record.ADI_Owning_Branch_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ADI_Pro_AV_Rep__c</field>
+            <value>
+                <elementReference>$Record.ADI_Pro_AV_Rep_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ADI_RAS_Outside_Sales_Person__c</field>
+            <value>
+                <elementReference>$Record.ADI_RAS_Outside_Sales_Person_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -144,9 +209,21 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>AccountSource</field>
+            <value>
+                <elementReference>$Record.AccountSource__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Account_Group__c</field>
             <value>
                 <elementReference>$Record.Account_Group_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Account_Notes__c</field>
+            <value>
+                <elementReference>$Record.Account_Notes_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -156,9 +233,21 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Account_Region__c</field>
+            <value>
+                <elementReference>$Record.Account_Region_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Account_Status__c</field>
             <value>
                 <elementReference>$Record.Account_Status_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Active_on_Dealer_Website__c</field>
+            <value>
+                <elementReference>$Record.Active_on_Dealer_Website_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -183,6 +272,18 @@
             <field>Assist_Authorized__c</field>
             <value>
                 <elementReference>$Record.Assist_Authorized_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Assist_Marketing_Contact_Email__c</field>
+            <value>
+                <elementReference>$Record.Assist_Marketing_Contact_Email_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Assist_Marketing_Contact_Phone__c</field>
+            <value>
+                <elementReference>$Record.Assist_Marketing_Contact_Phone_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -237,6 +338,12 @@
             <field>Builder_Account_Record_Type_Conversio__c</field>
             <value>
                 <elementReference>$Record.Builder_Account_Record_Type_Conversio_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Builder_Markets__c</field>
+            <value>
+                <elementReference>$Record.Builder_Markets_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -368,13 +475,37 @@
         <inputAssignments>
             <field>Commercial_BDM__c</field>
             <value>
-                <elementReference>Get_Commercial_BDM.Snap_Id__c</elementReference>
+                <elementReference>Get_Commercial_BDM.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Commercial_Rep__c</field>
             <value>
-                <elementReference>Get_Commercial_Rep.Snap_Id__c</elementReference>
+                <elementReference>Get_Commercial_Rep.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Commercial_Territory_text__c</field>
+            <value>
+                <elementReference>$Record.Commercial_Territory_Text_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Community_Address__c</field>
+            <value>
+                <elementReference>$Record.Community_Address_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Community_Discount_Code__c</field>
+            <value>
+                <elementReference>$Record.Community_Discount_Code_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Community_Opened__c</field>
+            <value>
+                <elementReference>$Record.Community_Opened_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -408,9 +539,27 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Control4_Demo_Location_Grade__c</field>
+            <value>
+                <elementReference>$Record.Control4_Demo_Location_Grade_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Control4_Demo_Location__c</field>
+            <value>
+                <elementReference>$Record.Control4_Demo_Location_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Control4_Offered_as__c</field>
+            <value>
+                <elementReference>$Record.Control4_Offered_as_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Converted_Lead__c</field>
             <value>
-                <elementReference>Get_Converted_Lead.Snap_Id__c</elementReference>
+                <elementReference>Get_Converted_Lead.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -422,19 +571,31 @@
         <inputAssignments>
             <field>Core_Inside_Rep__c</field>
             <value>
-                <elementReference>Get_Sales_Inside_Rep.Snap_Id__c</elementReference>
+                <elementReference>Get_Sales_Inside_Rep.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Core_Outside_Rep__c</field>
             <value>
-                <elementReference>Get_Sales_BDM_Core_Outside_Rep.Snap_Id__c</elementReference>
+                <elementReference>Get_Sales_BDM_Core_Outside_Rep.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Core_Sales_Engineer__c</field>
             <value>
-                <elementReference>Get_Sales_Engineer.Snap_Id__c</elementReference>
+                <elementReference>Get_Sales_Engineer.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Core_Territory_text__c</field>
+            <value>
+                <elementReference>$Record.Sales_Territory_Text__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Credit_Only_Account__c</field>
+            <value>
+                <elementReference>$Record.Credit_Only_Account_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -458,7 +619,7 @@
         <inputAssignments>
             <field>Dealer_Contact_for_Leads__c</field>
             <value>
-                <elementReference>Get_Dealer_Contact_for_Leads.Snap_Id__c</elementReference>
+                <elementReference>Get_Dealer_Contact_for_Leads.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -471,6 +632,30 @@
             <field>Dealer_Visit__c</field>
             <value>
                 <elementReference>$Record.Dealer_Visit_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Description</field>
+            <value>
+                <elementReference>$Record.Description__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Design_Center_Address__c</field>
+            <value>
+                <elementReference>$Record.Design_Center_Address_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Design_Center__c</field>
+            <value>
+                <elementReference>$Record.Design_Center_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Discount__c</field>
+            <value>
+                <elementReference>$Record.Discount_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -504,6 +689,18 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Global_Account_ID__c</field>
+            <value>
+                <elementReference>$Record.Global_Account_ID__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>HES_Member__c</field>
+            <value>
+                <elementReference>$Record.HES_Member_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>HTSA__c</field>
             <value>
                 <elementReference>$Record.HTSA_c__c</elementReference>
@@ -522,15 +719,45 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>ISM_Account_Owner__c</field>
+            <field>INTL_RMA_email__c</field>
             <value>
-                <elementReference>Get_ISM_Account_Records.Snap_Id__c</elementReference>
+                <elementReference>$Record.INTL_RMA_email_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Last_Synced_Timestamp__c</field>
+            <field>ISM_Account_Owner__c</field>
             <value>
-                <elementReference>SetRecordLastSyncDatetimetoLastmodifiedornull</elementReference>
+                <elementReference>Get_ISM_Account_Records.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Industry</field>
+            <value>
+                <elementReference>$Record.Industry__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Is_SnapAV_Referral__c</field>
+            <value>
+                <elementReference>$Record.Is_SnapAV_Referral_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Last_Sync_Timestamp__c</field>
+            <value>
+                <elementReference>$Record.LastModifiedDate__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Local_Branch_id__c</field>
+            <value>
+                <elementReference>$Record.Local_Branch_Text_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Local_Territory_text__c</field>
+            <value>
+                <elementReference>$Record.Local_Territory_Text_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -546,9 +773,39 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Model_Home_Demo_Grade__c</field>
+            <value>
+                <elementReference>$Record.Model_Home_Demo_Grade_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Model_Homes__c</field>
+            <value>
+                <elementReference>$Record.Model_Homes_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Model_Homes_with_Control4__c</field>
+            <value>
+                <elementReference>$Record.Model_Homes_with_Control4_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Most_Recent_Order_Snap__c</field>
+            <value>
+                <elementReference>$Record.Most_Recent_Order_Snap_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Most_Recent_Order__c</field>
             <value>
                 <elementReference>$Record.Most_Recent_Order_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Multiple_Shipping_Locations__c</field>
+            <value>
+                <elementReference>$Record.Multiple_Shipping_Locations_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -560,7 +817,7 @@
         <inputAssignments>
             <field>National_Rep__c</field>
             <value>
-                <elementReference>Get_Enterprise_BDM_National_Rep.Snap_Id__c</elementReference>
+                <elementReference>Get_Enterprise_BDM_National_Rep.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -600,6 +857,24 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Number_of_Lots_Available__c</field>
+            <value>
+                <elementReference>$Record.Number_of_Lots_Available_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Number_of_Lots_Total__c</field>
+            <value>
+                <elementReference>$Record.Number_of_Lots_Total_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Number_of_Lots_with_C4__c</field>
+            <value>
+                <elementReference>$Record.Number_of_Lots_with_C4_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Offer_1__c</field>
             <value>
                 <elementReference>$Record.Offer_1_c__c</elementReference>
@@ -612,15 +887,33 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Other_Program_Inclusions__c</field>
+            <value>
+                <elementReference>$Record.Other_Program_Inclusions_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Ovrc_Linked__c</field>
             <value>
                 <elementReference>$Record.Ovrc_Linked_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>OwnerOrUserid</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Ownership</field>
             <value>
                 <elementReference>$Record.Ownership__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>PO_For_Repairs_Allowed__c</field>
+            <value>
+                <elementReference>$Record.PO_For_Repairs_Allowed_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -678,6 +971,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Partner_Success_Territory_text__c</field>
+            <value>
+                <elementReference>$Record.Customer_Success_Territory_Text_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Password__c</field>
             <value>
                 <elementReference>$Record.Password_c__c</elementReference>
@@ -722,25 +1021,61 @@
         <inputAssignments>
             <field>Primary_Inside_Sales_Contact__c</field>
             <value>
-                <elementReference>Get_Primary_Inside_Sales_Contact.Snap_Id__c</elementReference>
+                <elementReference>Get_Primary_Inside_Sales_Contact.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Primary_Outside_Sales_Contact__c</field>
             <value>
-                <elementReference>Get_Primary_Outside_Sales_Contact.Snap_Id__c</elementReference>
+                <elementReference>Get_Primary_Outside_Sales_Contact.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Primary_Sales_Contact__c</field>
             <value>
-                <elementReference>Get_Primary_Sales_Contact.Snap_Id__c</elementReference>
+                <elementReference>Get_Primary_Sales_Contact.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Primary_Support_Location__c</field>
+            <value>
+                <elementReference>$Record.Primary_Support_Location_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Program_Request_for_Approval__c</field>
+            <value>
+                <elementReference>$Record.Program_Request_for_Approval_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Program_Spend__c</field>
+            <value>
+                <elementReference>$Record.Program_Spend_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Project_Completion__c</field>
+            <value>
+                <elementReference>$Record.Project_Completion_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>QTD_Revenue_Comparison__c</field>
+            <value>
+                <elementReference>$Record.QTD_Revenue_Comparison_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>RMA_CC_Email__c</field>
             <value>
                 <elementReference>$Record.RMA_CC_Email_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Rating</field>
+            <value>
+                <elementReference>$Record.Rating__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -768,9 +1103,27 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Rolling_12_Months__c</field>
+            <value>
+                <elementReference>$Record.Rolling_12_Months_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>SAP_ACCOUNT_ID__c</field>
+            <value>
+                <elementReference>$Record.SAP_ACCOUNT_ID_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>SAP_Assist_Authorized__c</field>
             <value>
                 <elementReference>$Record.SAP_Assist_Authorized_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>SAP_Instance__c</field>
+            <value>
+                <elementReference>$Record.SAP_Instance_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -788,13 +1141,13 @@
         <inputAssignments>
             <field>SSA__c</field>
             <value>
-                <elementReference>Get_SSA.Snap_Id__c</elementReference>
+                <elementReference>Get_SSA.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Sales_Director__c</field>
             <value>
-                <elementReference>Get_Sales_Director.Snap_Id__c</elementReference>
+                <elementReference>Get_Sales_Director.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -807,6 +1160,12 @@
             <field>Sales_Priority__c</field>
             <value>
                 <elementReference>$Record.Sales_Priority_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Security_Territory_text__c</field>
+            <value>
+                <elementReference>$Record.Security_Territory_Text_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -846,6 +1205,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Sic</field>
+            <value>
+                <elementReference>$Record.Sic__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Site</field>
             <value>
                 <elementReference>$Record.Site__c</elementReference>
@@ -860,7 +1225,7 @@
         <inputAssignments>
             <field>Snap_Id__c</field>
             <value>
-                <elementReference>$Record.Account_ID_c__c</elementReference>
+                <elementReference>$Record.Id__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -872,7 +1237,7 @@
         <inputAssignments>
             <field>TFM_Account_Owner__c</field>
             <value>
-                <elementReference>Get_TFM_Account_Owner.Snap_Id__c</elementReference>
+                <elementReference>Get_TFM_Account_Owner.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -897,6 +1262,12 @@
             <field>Total_Revenue_Last_Year__c</field>
             <value>
                 <elementReference>$Record.Total_Revenue_Last_Year_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Type</field>
+            <value>
+                <elementReference>$Record.Type__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -930,6 +1301,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>YTD_Revenue_Comparison__c</field>
+            <value>
+                <elementReference>$Record.YTD_Revenue_Comparison_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>YTD_Sales__c</field>
             <value>
                 <elementReference>$Record.YTD_Sales_c__c</elementReference>
@@ -942,12 +1319,58 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>ihiji_Dealer_ID__c</field>
+            <value>
+                <elementReference>$Record.ihiji_Dealer_ID_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>of_Connect_Customers__c</field>
             <value>
                 <elementReference>$Record.of_Connect_Customers_c__c</elementReference>
             </value>
         </inputAssignments>
+        <inputAssignments>
+            <field>zpf__NumberofLocations__c</field>
+            <value>
+                <elementReference>$Record.Number_of_Locations_c__c</elementReference>
+            </value>
+        </inputAssignments>
         <object>Account</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <name>Fault_Log_Error</name>
+        <label>Fault Log Error</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>Error_Message__c</field>
+            <value>
+                <elementReference>Faultmsg</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Flow_Name__c</field>
+            <value>
+                <elementReference>CreateAccount</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Data_Cloud_Logs__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <name>Update_Fault_Error_Log</name>
+        <label>Update Fault Error Log</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>Error_Message__c</field>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Data_Cloud_Logs__c</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
     <recordLookups>
@@ -967,11 +1390,18 @@
                 <elementReference>$Record.Global_Account_ID__c</elementReference>
             </value>
         </filters>
+        <filters>
+            <field>Global_Account_ID__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Account</object>
         <queriedFields>Id</queriedFields>
         <queriedFields>Global_Account_ID__c</queriedFields>
-        <queriedFields>Last_Synced_Timestamp__c</queriedFields>
+        <queriedFields>Last_Sync_Timestamp__c</queriedFields>
         <queriedFields>LastModifiedDate</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
@@ -990,6 +1420,13 @@
             <operator>EqualTo</operator>
             <value>
                 <elementReference>$Record.Commercial_BDM_c__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -1011,6 +1448,13 @@
             <operator>EqualTo</operator>
             <value>
                 <elementReference>$Record.Commercial_Rep_c__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -1059,6 +1503,13 @@
                 <elementReference>$Record.Global_Account_ID__c</elementReference>
             </value>
         </filters>
+        <filters>
+            <field>Global_Account_ID__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Account</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
@@ -1080,6 +1531,13 @@
                 <elementReference>$Record.Dealer_Contact_for_Leads_c__c</elementReference>
             </value>
         </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Contact</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
@@ -1099,6 +1557,13 @@
             <operator>EqualTo</operator>
             <value>
                 <elementReference>$Record.National_Rep_c__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -1124,11 +1589,47 @@
                 <elementReference>$Record.ISM_Account_Owner_c__c</elementReference>
             </value>
         </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>User</object>
         <queriedFields>Id</queriedFields>
         <queriedFields>Snap_Id__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Owner_ID</name>
+        <label>Get Owner ID</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_CRM_Record_by_Global_ID</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.OwnerId__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </filters>
+        <object>User</object>
+        <outputReference>varUSERID</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Snap_Id__c</queriedFields>
     </recordLookups>
     <recordLookups>
         <name>Get_Parent_Id</name>
@@ -1145,6 +1646,13 @@
             <operator>EqualTo</operator>
             <value>
                 <elementReference>$Record.ParentId__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -1170,6 +1678,13 @@
                 <elementReference>$Record.Primary_Inside_Sales_Contact_c__c</elementReference>
             </value>
         </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Contact</object>
         <queriedFields>Id</queriedFields>
@@ -1191,6 +1706,13 @@
             <operator>EqualTo</operator>
             <value>
                 <elementReference>$Record.Primary_Outside_Sales_Contact_c__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -1216,6 +1738,13 @@
                 <elementReference>$Record.Primary_Sales_Contact_c__c</elementReference>
             </value>
         </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>User</object>
         <queriedFields>Id</queriedFields>
@@ -1229,7 +1758,7 @@
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Get_CRM_Record_by_Global_ID</targetReference>
+            <targetReference>Get_Owner_ID</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -1262,6 +1791,13 @@
                 <elementReference>$Record.Core_Outside_Rep_c__c</elementReference>
             </value>
         </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>User</object>
         <queriedFields>Id</queriedFields>
@@ -1283,6 +1819,13 @@
             <operator>EqualTo</operator>
             <value>
                 <elementReference>$Record.Sales_Director_c__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -1308,6 +1851,13 @@
                 <elementReference>$Record.Core_Sales_Engineer_c__c</elementReference>
             </value>
         </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>User</object>
         <queriedFields>Id</queriedFields>
@@ -1329,6 +1879,13 @@
             <operator>EqualTo</operator>
             <value>
                 <elementReference>$Record.Core_Inside_Rep_c__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -1354,6 +1911,13 @@
                 <elementReference>$Record.SSA_c__c</elementReference>
             </value>
         </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>User</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
@@ -1365,7 +1929,7 @@
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Is_Snap_Sync</targetReference>
+            <targetReference>Get_ISM_Account_Records</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -1396,10 +1960,16 @@
                 <elementReference>$Record.TFM_Account_Owner_c__c</elementReference>
             </value>
         </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Lead</object>
+        <object>User</object>
         <queriedFields>Id</queriedFields>
-        <queriedFields>Snap_Id__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
@@ -1407,6 +1977,9 @@
         <label>Update SNAP Account Records in ADI</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <faultConnector>
+            <targetReference>Assigning_Account_Update_faults</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Global_Account_ID__c</field>
@@ -1422,6 +1995,30 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>ADI_Account_Owner__c</field>
+            <value>
+                <elementReference>$Record.ADI_Account_Owner_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ADI_Owning_Branch__c</field>
+            <value>
+                <elementReference>$Record.ADI_Owning_Branch_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ADI_Pro_AV_Rep__c</field>
+            <value>
+                <elementReference>$Record.ADI_Pro_AV_Rep_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ADI_RAS_Outside_Sales_Person__c</field>
+            <value>
+                <elementReference>$Record.ADI_RAS_Outside_Sales_Person_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>ADI_Segment__c</field>
             <value>
                 <elementReference>$Record.ADI_Segment_c__c</elementReference>
@@ -1434,9 +2031,21 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>AccountSource</field>
+            <value>
+                <elementReference>$Record.AccountSource__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Account_Group__c</field>
             <value>
                 <elementReference>$Record.Account_Group_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Account_Notes__c</field>
+            <value>
+                <elementReference>$Record.Account_Notes_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1446,9 +2055,21 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Account_Region__c</field>
+            <value>
+                <elementReference>$Record.Account_Region_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Account_Status__c</field>
             <value>
                 <elementReference>$Record.Account_Status_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Active_on_Dealer_Website__c</field>
+            <value>
+                <elementReference>$Record.Active_on_Dealer_Website_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1473,6 +2094,18 @@
             <field>Assist_Authorized__c</field>
             <value>
                 <elementReference>$Record.Assist_Authorized_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Assist_Marketing_Contact_Email__c</field>
+            <value>
+                <elementReference>$Record.Assist_Marketing_Contact_Email_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Assist_Marketing_Contact_Phone__c</field>
+            <value>
+                <elementReference>$Record.Assist_Marketing_Contact_Phone_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1527,6 +2160,12 @@
             <field>Builder_Account_Record_Type_Conversio__c</field>
             <value>
                 <elementReference>$Record.Builder_Account_Record_Type_Conversio_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Builder_Markets__c</field>
+            <value>
+                <elementReference>$Record.Builder_Markets_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1658,13 +2297,37 @@
         <inputAssignments>
             <field>Commercial_BDM__c</field>
             <value>
-                <elementReference>Get_Commercial_BDM.Snap_Id__c</elementReference>
+                <elementReference>Get_Commercial_BDM.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Commercial_Rep__c</field>
             <value>
-                <elementReference>Get_Commercial_Rep.Snap_Id__c</elementReference>
+                <elementReference>Get_Commercial_Rep.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Commercial_Territory_text__c</field>
+            <value>
+                <elementReference>$Record.Commercial_Territory_Text_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Community_Address__c</field>
+            <value>
+                <elementReference>$Record.Community_Address_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Community_Discount_Code__c</field>
+            <value>
+                <elementReference>$Record.Community_Discount_Code_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Community_Opened__c</field>
+            <value>
+                <elementReference>$Record.Community_Opened_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1698,9 +2361,27 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Control4_Demo_Location_Grade__c</field>
+            <value>
+                <elementReference>$Record.Control4_Demo_Location_Grade_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Control4_Demo_Location__c</field>
+            <value>
+                <elementReference>$Record.Control4_Demo_Location_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Control4_Offered_as__c</field>
+            <value>
+                <elementReference>$Record.Control4_Offered_as_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Converted_Lead__c</field>
             <value>
-                <elementReference>Get_Converted_Lead.Snap_Id__c</elementReference>
+                <elementReference>Get_Converted_Lead.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1712,19 +2393,31 @@
         <inputAssignments>
             <field>Core_Inside_Rep__c</field>
             <value>
-                <elementReference>Get_Sales_Inside_Rep.Snap_Id__c</elementReference>
+                <elementReference>Get_Sales_Inside_Rep.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Core_Outside_Rep__c</field>
             <value>
-                <elementReference>Get_Sales_BDM_Core_Outside_Rep.Snap_Id__c</elementReference>
+                <elementReference>Get_Sales_BDM_Core_Outside_Rep.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Core_Sales_Engineer__c</field>
             <value>
-                <elementReference>Get_Sales_Engineer.Snap_Id__c</elementReference>
+                <elementReference>Get_Sales_Engineer.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Core_Territory_text__c</field>
+            <value>
+                <elementReference>$Record.Sales_Territory_Text__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Credit_Only_Account__c</field>
+            <value>
+                <elementReference>$Record.Credit_Only_Account_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1748,7 +2441,7 @@
         <inputAssignments>
             <field>Dealer_Contact_for_Leads__c</field>
             <value>
-                <elementReference>Get_Dealer_Contact_for_Leads.Snap_Id__c</elementReference>
+                <elementReference>Get_Dealer_Contact_for_Leads.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1761,6 +2454,36 @@
             <field>Dealer_Visit__c</field>
             <value>
                 <elementReference>$Record.Dealer_Visit_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Dealers_Sales_Acumen_Grade__c</field>
+            <value>
+                <elementReference>$Record.Dealers_Sales_Acumen_Grade_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Description</field>
+            <value>
+                <elementReference>$Record.Description__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Design_Center_Address__c</field>
+            <value>
+                <elementReference>$Record.Design_Center_Address_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Design_Center__c</field>
+            <value>
+                <elementReference>$Record.Design_Center_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Discount__c</field>
+            <value>
+                <elementReference>$Record.Discount_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1794,6 +2517,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>HES_Member__c</field>
+            <value>
+                <elementReference>$Record.HES_Member_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>HTSA__c</field>
             <value>
                 <elementReference>$Record.HTSA_c__c</elementReference>
@@ -1812,15 +2541,45 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>ISM_Account_Owner__c</field>
+            <field>INTL_RMA_email__c</field>
             <value>
-                <elementReference>Get_ISM_Account_Records.Snap_Id__c</elementReference>
+                <elementReference>$Record.INTL_RMA_email_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Last_Synced_Timestamp__c</field>
+            <field>ISM_Account_Owner__c</field>
+            <value>
+                <elementReference>Get_ISM_Account_Records.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Industry</field>
+            <value>
+                <elementReference>$Record.Industry__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Is_SnapAV_Referral__c</field>
+            <value>
+                <elementReference>$Record.Is_SnapAV_Referral_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Last_Sync_Timestamp__c</field>
             <value>
                 <elementReference>$Record.LastModifiedDate__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Local_Branch_id__c</field>
+            <value>
+                <elementReference>$Record.Local_Branch_Text_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Local_Territory_text__c</field>
+            <value>
+                <elementReference>$Record.Local_Territory_Text_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1836,9 +2595,39 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Model_Home_Demo_Grade__c</field>
+            <value>
+                <elementReference>$Record.Model_Home_Demo_Grade_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Model_Homes__c</field>
+            <value>
+                <elementReference>$Record.Model_Homes_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Model_Homes_with_Control4__c</field>
+            <value>
+                <elementReference>$Record.Model_Homes_with_Control4_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Most_Recent_Order_Snap__c</field>
+            <value>
+                <elementReference>$Record.Most_Recent_Order_Snap_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Most_Recent_Order__c</field>
             <value>
                 <elementReference>$Record.Most_Recent_Order_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Multiple_Shipping_Locations__c</field>
+            <value>
+                <elementReference>$Record.Multiple_Shipping_Locations_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1850,7 +2639,7 @@
         <inputAssignments>
             <field>National_Rep__c</field>
             <value>
-                <elementReference>Get_Enterprise_BDM_National_Rep.Snap_Id__c</elementReference>
+                <elementReference>Get_Enterprise_BDM_National_Rep.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1890,6 +2679,24 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Number_of_Lots_Available__c</field>
+            <value>
+                <elementReference>$Record.Number_of_Lots_Available_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Number_of_Lots_Total__c</field>
+            <value>
+                <elementReference>$Record.Number_of_Lots_Total_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Number_of_Lots_with_C4__c</field>
+            <value>
+                <elementReference>$Record.Number_of_Lots_with_C4_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Offer_1__c</field>
             <value>
                 <elementReference>$Record.Offer_1_c__c</elementReference>
@@ -1902,15 +2709,33 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Other_Program_Inclusions__c</field>
+            <value>
+                <elementReference>$Record.Other_Program_Inclusions_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Ovrc_Linked__c</field>
             <value>
                 <elementReference>$Record.Ovrc_Linked_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>OwnerOrUserid</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Ownership</field>
             <value>
                 <elementReference>$Record.Ownership__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>PO_For_Repairs_Allowed__c</field>
+            <value>
+                <elementReference>$Record.PO_For_Repairs_Allowed_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1968,6 +2793,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Partner_Success_Territory_text__c</field>
+            <value>
+                <elementReference>$Record.Customer_Success_Territory_Text_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Password__c</field>
             <value>
                 <elementReference>$Record.Password_c__c</elementReference>
@@ -2012,25 +2843,61 @@
         <inputAssignments>
             <field>Primary_Inside_Sales_Contact__c</field>
             <value>
-                <elementReference>Get_Primary_Inside_Sales_Contact.Snap_Id__c</elementReference>
+                <elementReference>Get_Primary_Inside_Sales_Contact.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Primary_Outside_Sales_Contact__c</field>
             <value>
-                <elementReference>Get_Primary_Outside_Sales_Contact.Snap_Id__c</elementReference>
+                <elementReference>Get_Primary_Outside_Sales_Contact.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Primary_Sales_Contact__c</field>
             <value>
-                <elementReference>Get_Primary_Sales_Contact.Snap_Id__c</elementReference>
+                <elementReference>Get_Primary_Sales_Contact.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Primary_Support_Location__c</field>
+            <value>
+                <elementReference>$Record.Primary_Support_Location_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Program_Request_for_Approval__c</field>
+            <value>
+                <elementReference>$Record.Program_Request_for_Approval_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Program_Spend__c</field>
+            <value>
+                <elementReference>$Record.Program_Spend_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Project_Completion__c</field>
+            <value>
+                <elementReference>$Record.Project_Completion_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>QTD_Revenue_Comparison__c</field>
+            <value>
+                <elementReference>$Record.QTD_Revenue_Comparison_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>RMA_CC_Email__c</field>
             <value>
                 <elementReference>$Record.RMA_CC_Email_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Rating</field>
+            <value>
+                <elementReference>$Record.Rating__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -2058,9 +2925,27 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Rolling_12_Months__c</field>
+            <value>
+                <elementReference>$Record.Rolling_12_Months_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>SAP_ACCOUNT_ID__c</field>
+            <value>
+                <elementReference>$Record.SAP_ACCOUNT_ID_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>SAP_Assist_Authorized__c</field>
             <value>
                 <elementReference>$Record.SAP_Assist_Authorized_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>SAP_Instance__c</field>
+            <value>
+                <elementReference>$Record.SAP_Instance_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -2078,13 +2963,13 @@
         <inputAssignments>
             <field>SSA__c</field>
             <value>
-                <elementReference>Get_SSA.Snap_Id__c</elementReference>
+                <elementReference>Get_SSA.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Sales_Director__c</field>
             <value>
-                <elementReference>Get_Sales_Director.Snap_Id__c</elementReference>
+                <elementReference>Get_Sales_Director.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -2097,6 +2982,12 @@
             <field>Sales_Priority__c</field>
             <value>
                 <elementReference>$Record.Sales_Priority_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Security_Territory_text__c</field>
+            <value>
+                <elementReference>$Record.Security_Territory_Text_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -2136,6 +3027,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Sic</field>
+            <value>
+                <elementReference>$Record.Sic__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Site</field>
             <value>
                 <elementReference>$Record.Site__c</elementReference>
@@ -2150,7 +3047,7 @@
         <inputAssignments>
             <field>Snap_Id__c</field>
             <value>
-                <elementReference>$Record.Account_ID_c__c</elementReference>
+                <elementReference>$Record.Id__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -2162,7 +3059,7 @@
         <inputAssignments>
             <field>TFM_Account_Owner__c</field>
             <value>
-                <elementReference>Get_TFM_Account_Owner.Snap_Id__c</elementReference>
+                <elementReference>Get_TFM_Account_Owner.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -2187,6 +3084,12 @@
             <field>Total_Revenue_Last_Year__c</field>
             <value>
                 <elementReference>$Record.Total_Revenue_Last_Year_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Type</field>
+            <value>
+                <elementReference>$Record.Type__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -2220,6 +3123,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>YTD_Revenue_Comparison__c</field>
+            <value>
+                <elementReference>$Record.YTD_Revenue_Comparison_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>YTD_Revenue__c</field>
             <value>
                 <elementReference>$Record.YTD_Revenue_c__c</elementReference>
@@ -2238,9 +3147,21 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>ihiji_Dealer_ID__c</field>
+            <value>
+                <elementReference>$Record.ihiji_Dealer_ID_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>of_Connect_Customers__c</field>
             <value>
                 <elementReference>$Record.of_Connect_Customers_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>zpf__NumberofLocations__c</field>
+            <value>
+                <elementReference>$Record.Number_of_Locations_c__c</elementReference>
             </value>
         </inputAssignments>
         <object>Account</object>
@@ -2249,7 +3170,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Get_RT</targetReference>
+            <targetReference>Is_Snap_Sync</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -2260,15 +3181,51 @@
             </value>
         </filters>
         <filters>
-            <field>Global_Account_ID__c</field>
+            <field>Is_System_Update__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Account_Status_c__c</field>
             <operator>NotEqualTo</operator>
             <value>
-                <stringValue></stringValue>
+                <stringValue>Inactive</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Account_Status_c__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Terminated</stringValue>
             </value>
         </filters>
         <object>Account_SNAPfs__dlm</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>DataCloudDataChange</triggerType>
     </start>
-    <status>Draft</status>
+    <status>Active</status>
+    <variables>
+        <name>FaultCd</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>Faultmsg</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varUSERID</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>User</objectType>
+    </variables>
 </Flow>

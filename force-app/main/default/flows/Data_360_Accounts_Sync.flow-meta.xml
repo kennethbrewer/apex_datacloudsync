@@ -1,39 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Log_Account_Creation_Error_SNAP_to_ADI</name>
+        <label>Log Account Creation Error SNAP to ADI</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>DCFlowErrorLoggerPE</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>dcSourceSystem</name>
+            <value>
+                <stringValue>Account_SNAPfs__dlm</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>errorMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>fieldSummary</name>
+            <value>
+                <elementReference>varFieldSummaryText</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>flowName</name>
+            <value>
+                <stringValue>Data_360_Accounts_Sync</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>objectType</name>
+            <value>
+                <stringValue>Account</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>operationType</name>
+            <value>
+                <stringValue>Create</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>recordIdentifier</name>
+            <value>
+                <elementReference>$Record.Id__c</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>DCFlowErrorLoggerPE</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <actionCalls>
+        <name>Log_Account_Update_Error_SNAP_to_ADI</name>
+        <label>Log Account Update Error SNAP to ADI</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>DCFlowErrorLoggerPE</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>dcSourceSystem</name>
+            <value>
+                <stringValue>Account_SNAPfs__dlm</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>errorMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>fieldSummary</name>
+            <value>
+                <elementReference>varFieldSummaryText</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>flowName</name>
+            <value>
+                <stringValue>Data_360_Accounts_Sync</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>objectType</name>
+            <value>
+                <stringValue>Account</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>operationType</name>
+            <value>
+                <stringValue>Update</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>recordIdentifier</name>
+            <value>
+                <elementReference>$Record.Id__c</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>DCFlowErrorLoggerPE</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
-    <assignments>
-        <name>Assigning_Account_Create_Faults</name>
-        <label>Assigning Account Create Faults</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>Faultmsg</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Fault_Log_Error</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assigning_Account_Update_faults</name>
-        <label>Assigning Account Update faults</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>Faultmsg</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Update_Fault_Error_Log</targetReference>
-        </connector>
-    </assignments>
     <constants>
         <name>CreateAccount</name>
         <dataType>String</dataType>
@@ -124,7 +198,7 @@
             <label>Does Not Exist - Create</label>
         </rules>
     </decisions>
-    <description>25/29 fields+</description>
+    <description>Core Account SNAP to ADI</description>
     <environments>Default</environments>
     <formulas>
         <name>OwnerOrUserid</name>
@@ -136,6 +210,31 @@
         <name>SetRecordLastSyncDatetimetoLastmodifiedornull</name>
         <dataType>DateTime</dataType>
         <expression>IF({!Get_System_User.RecordTypeIdADI__c}={!$Record.CreatedById__c}, {!$Record.LastModifiedDate__c}, NULL)</expression>
+    </formulas>
+    <formulas>
+        <name>varFieldSummaryText</name>
+        <dataType>String</dataType>
+        <expression>IF(
+  NOT(ISBLANK({!$Record.Name__c})),
+  {!$Record.Name__c},
+  &quot;&quot;
+) &amp; IF(
+  NOT(ISBLANK({!$Record.RecordTypeID__c})),
+  &quot; | RecordTypeId: &quot; &amp; {!$Record.RecordTypeID__c},
+  &quot;&quot;
+) &amp; IF(
+  NOT(ISBLANK({!$Record.Phone__c})),
+  &quot; | Phone: &quot; &amp; {!$Record.Phone__c},
+  &quot;&quot;
+) &amp; IF(
+  NOT(ISBLANK({!$Record.Website__c})),
+  &quot; | Website: &quot; &amp; {!$Record.Website__c},
+  &quot;&quot;
+)&amp; IF(
+  NOT(ISBLANK({!$Record.Global_Account_ID__c})),
+  &quot; | Global_Account_ID__c: &quot; &amp; {!$Record.Global_Account_ID__c},
+  &quot;&quot;
+)</expression>
     </formulas>
     <interviewLabel>Data 360 Accounts Upsert SNAP to ADI {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Data 360 Accounts Upsert SNAP to ADI</label>
@@ -164,7 +263,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <faultConnector>
-            <targetReference>Assigning_Account_Create_Faults</targetReference>
+            <targetReference>Log_Account_Creation_Error_SNAP_to_ADI</targetReference>
         </faultConnector>
         <inputAssignments>
             <field>ACH_Collection_Status__c</field>
@@ -419,18 +518,6 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Chartered_Core_Inside_Rep__c</field>
-            <value>
-                <elementReference>$Record.Chartered_Core_Inside_Rep_c__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Chartered_Core_Outside_Rep__c</field>
-            <value>
-                <elementReference>$Record.Chartered_Core_Outside_Rep_c__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
             <field>Chartered_Hospitality__c</field>
             <value>
                 <elementReference>$Record.Chartered_Hospitality_c__c</elementReference>
@@ -485,9 +572,15 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Commercial_Territory_id__c</field>
+            <value>
+                <elementReference>$Record.Commercial_Territory_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Commercial_Territory_text__c</field>
             <value>
-                <elementReference>$Record.Commercial_Territory_Text_c__c</elementReference>
+                <elementReference>$Record.Commercial_Territory_T__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -581,15 +674,21 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Core_Sales_Engineer__c</field>
+            <field>Core_Region_text__c</field>
             <value>
-                <elementReference>Get_Sales_Engineer.Id</elementReference>
+                <elementReference>$Record.Core_Region_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Core_Territory_id__c</field>
+            <value>
+                <elementReference>$Record.Core_Territory_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Core_Territory_text__c</field>
             <value>
-                <elementReference>$Record.Sales_Territory_Text__c</elementReference>
+                <elementReference>$Record.Core_Territory_T__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -632,6 +731,12 @@
             <field>Dealer_Visit__c</field>
             <value>
                 <elementReference>$Record.Dealer_Visit_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Dealers_Sales_Acumen_Grade__c</field>
+            <value>
+                <elementReference>$Record.Dealers_Sales_Acumen_Grade_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -751,13 +856,13 @@
         <inputAssignments>
             <field>Local_Branch_id__c</field>
             <value>
-                <elementReference>$Record.Local_Branch_Text_c__c</elementReference>
+                <elementReference>$Record.Local_Branch_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Local_Territory_text__c</field>
+            <field>Local_Branch_text__c</field>
             <value>
-                <elementReference>$Record.Local_Territory_Text_c__c</elementReference>
+                <elementReference>$Record.Local_Branch_T__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -971,12 +1076,6 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Partner_Success_Territory_text__c</field>
-            <value>
-                <elementReference>$Record.Customer_Success_Territory_Text_c__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
             <field>Password__c</field>
             <value>
                 <elementReference>$Record.Password_c__c</elementReference>
@@ -1163,9 +1262,15 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Security_Territory_id__c</field>
+            <value>
+                <elementReference>$Record.Security_Territory_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Security_Territory_text__c</field>
             <value>
-                <elementReference>$Record.Security_Territory_Text_c__c</elementReference>
+                <elementReference>$Record.Security_Territory_T__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1307,6 +1412,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>YTD_Revenue__c</field>
+            <value>
+                <elementReference>$Record.YTD_Revenue_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>YTD_Sales__c</field>
             <value>
                 <elementReference>$Record.YTD_Sales_c__c</elementReference>
@@ -1339,40 +1450,6 @@
         <object>Account</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
-    <recordCreates>
-        <name>Fault_Log_Error</name>
-        <label>Fault Log Error</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <inputAssignments>
-            <field>Error_Message__c</field>
-            <value>
-                <elementReference>Faultmsg</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Flow_Name__c</field>
-            <value>
-                <elementReference>CreateAccount</elementReference>
-            </value>
-        </inputAssignments>
-        <object>Data_Cloud_Logs__c</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordCreates>
-    <recordCreates>
-        <name>Update_Fault_Error_Log</name>
-        <label>Update Fault Error Log</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <inputAssignments>
-            <field>Error_Message__c</field>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </inputAssignments>
-        <object>Data_Cloud_Logs__c</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordCreates>
     <recordLookups>
         <name>Get_Account_Global_ID</name>
         <label>Get Account Global ID</label>
@@ -1380,7 +1457,7 @@
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Record_Update_Or_Create</targetReference>
+            <targetReference>Get_Local_Store_Branch</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -1478,6 +1555,13 @@
             <operator>EqualTo</operator>
             <value>
                 <elementReference>$Record.Converted_Lead_c__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -1587,6 +1671,58 @@
             <operator>EqualTo</operator>
             <value>
                 <elementReference>$Record.ISM_Account_Owner_c__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>User</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Snap_Id__c</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Local_Store_Branch</name>
+        <label>Get Local Store Branch</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Record_Update_Or_Create</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>SNAP_LocalStore_Id__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Local_Branch_c__c</elementReference>
+            </value>
+        </filters>
+        <object>Branch__c</object>
+        <outputReference>LocalStorevar</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Local_Store_ISR_Rep</name>
+        <label>Get Local Store ISR Rep</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Parent_Id</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Local_Store_ISR_Rep__c</elementReference>
             </value>
         </filters>
         <filters>
@@ -1950,7 +2086,7 @@
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Get_Parent_Id</targetReference>
+            <targetReference>Get_Local_Store_ISR_Rep</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -1978,7 +2114,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <faultConnector>
-            <targetReference>Assigning_Account_Update_faults</targetReference>
+            <targetReference>Log_Account_Update_Error_SNAP_to_ADI</targetReference>
         </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -2241,18 +2377,6 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Chartered_Core_Inside_Rep__c</field>
-            <value>
-                <elementReference>$Record.Chartered_Core_Inside_Rep_c__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Chartered_Core_Outside_Rep__c</field>
-            <value>
-                <elementReference>$Record.Chartered_Core_Outside_Rep_c__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
             <field>Chartered_Hospitality__c</field>
             <value>
                 <elementReference>$Record.Chartered_Hospitality_c__c</elementReference>
@@ -2307,9 +2431,15 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Commercial_Territory_id__c</field>
+            <value>
+                <elementReference>$Record.Commercial_Territory_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Commercial_Territory_text__c</field>
             <value>
-                <elementReference>$Record.Commercial_Territory_Text_c__c</elementReference>
+                <elementReference>$Record.Commercial_Territory_T__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -2403,15 +2533,21 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Core_Sales_Engineer__c</field>
+            <field>Core_Region_text__c</field>
             <value>
-                <elementReference>Get_Sales_Engineer.Id</elementReference>
+                <elementReference>$Record.Core_Region_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Core_Territory_id__c</field>
+            <value>
+                <elementReference>$Record.Core_Territory_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Core_Territory_text__c</field>
             <value>
-                <elementReference>$Record.Sales_Territory_Text__c</elementReference>
+                <elementReference>$Record.Core_Territory_T__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -2573,13 +2709,13 @@
         <inputAssignments>
             <field>Local_Branch_id__c</field>
             <value>
-                <elementReference>$Record.Local_Branch_Text_c__c</elementReference>
+                <elementReference>$Record.Local_Branch_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Local_Territory_text__c</field>
+            <field>Local_Branch_text__c</field>
             <value>
-                <elementReference>$Record.Local_Territory_Text_c__c</elementReference>
+                <elementReference>$Record.Local_Branch_T__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -2793,12 +2929,6 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Partner_Success_Territory_text__c</field>
-            <value>
-                <elementReference>$Record.Customer_Success_Territory_Text_c__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
             <field>Password__c</field>
             <value>
                 <elementReference>$Record.Password_c__c</elementReference>
@@ -2985,9 +3115,15 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Security_Territory_id__c</field>
+            <value>
+                <elementReference>$Record.Security_Territory_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Security_Territory_text__c</field>
             <value>
-                <elementReference>$Record.Security_Territory_Text_c__c</elementReference>
+                <elementReference>$Record.Security_Territory_T__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -3205,7 +3341,7 @@
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>DataCloudDataChange</triggerType>
     </start>
-    <status>Active</status>
+    <status>Draft</status>
     <variables>
         <name>FaultCd</name>
         <dataType>String</dataType>
@@ -3219,6 +3355,14 @@
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>LocalStorevar</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Branch__c</objectType>
     </variables>
     <variables>
         <name>varUSERID</name>

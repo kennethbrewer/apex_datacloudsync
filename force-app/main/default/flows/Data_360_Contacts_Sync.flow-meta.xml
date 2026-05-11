@@ -1,5 +1,111 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Log_Contact_Update_Error_SNAP_to_ADI</name>
+        <label>Log Contact Update Error SNAP to ADI</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>DCFlowErrorLoggerPE</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>dcSourceSystem</name>
+            <value>
+                <stringValue>Contact_SNAP__dlm</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>errorMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>fieldSummary</name>
+            <value>
+                <elementReference>varFieldSummaryText</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>flowName</name>
+            <value>
+                <stringValue>Data_360_Contacts_Sync</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>objectType</name>
+            <value>
+                <stringValue>Contact</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>operationType</name>
+            <value>
+                <stringValue>Update</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>recordIdentifier</name>
+            <value>
+                <elementReference>$Record.Id__c</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>DCFlowErrorLoggerPE</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <actionCalls>
+        <name>Log_Create_Contact_Error_SNAP_to_ADI</name>
+        <label>Log Create Contact Error SNAP to ADI</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>DCFlowErrorLoggerPE</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>dcSourceSystem</name>
+            <value>
+                <stringValue>Contact_SNAP__dlm</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>errorMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>fieldSummary</name>
+            <value>
+                <elementReference>varFieldSummaryText</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>flowName</name>
+            <value>
+                <stringValue>Data_360_Contacts_Sync</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>objectType</name>
+            <value>
+                <stringValue>Contact</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>operationType</name>
+            <value>
+                <stringValue>Create</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>recordIdentifier</name>
+            <value>
+                <elementReference>$Record.Id__c</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>DCFlowErrorLoggerPE</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <constants>
@@ -22,7 +128,7 @@
                 <leftValueReference>$Record.LastModifiedDate__c</leftValueReference>
                 <operator>GreaterThan</operator>
                 <rightValue>
-                    <elementReference>Get_CRM_Record_by_Global_ID.Last_Synced_Timestamp__c</elementReference>
+                    <elementReference>ExistingContact.Last_Sync_Timestamp__c</elementReference>
                 </rightValue>
             </conditions>
             <connector>
@@ -37,17 +143,39 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Get_AccountId</targetReference>
+            <targetReference>Record_Update_Or_Create</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>Not_a_SNAP_contact</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Snap_Data_Cloud__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>Not a SNAP contact</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Is_Snap_Sync</name>
+        <label>Is Snap Sync</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Get_RT</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Is Snap Sync</defaultConnectorLabel>
+        <rules>
+            <name>Is_Not_SNAP_Sync_Data</name>
             <conditionLogic>or</conditionLogic>
             <conditions>
-                <leftValueReference>Get_RT.Id</leftValueReference>
-                <operator>IsBlank</operator>
+                <leftValueReference>$Record.Snap_Data_Cloud__c</leftValueReference>
+                <operator>EqualTo</operator>
                 <rightValue>
-                    <booleanValue>true</booleanValue>
+                    <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <conditions>
@@ -58,13 +186,20 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record.Snap_Data_Cloud__c</leftValueReference>
+                <leftValueReference>$Record.Account_Is_Inactive_c__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <booleanValue>false</booleanValue>
+                    <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
-            <label>Not a SNAP contact</label>
+            <conditions>
+                <leftValueReference>$Record.Inactive_c__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>Is Not SNAP Sync Data</label>
         </rules>
     </decisions>
     <decisions>
@@ -80,10 +215,17 @@
             <name>Does_Not_Exist_Create</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>Get_AccountId.Global_Account_ID__c</leftValueReference>
+                <leftValueReference>ExistingContact.Global_Contact_ID__c</leftValueReference>
                 <operator>IsBlank</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Inactive_c__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -91,8 +233,20 @@
             </connector>
             <label>Does Not Exist - Create</label>
         </rules>
+        <rules>
+            <name>Is_Inactive</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Inactive_c__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>Is Inactive</label>
+        </rules>
     </decisions>
-    <description>Contact</description>
+    <description>Global Account ID</description>
     <environments>Default</environments>
     <formulas>
         <name>OwnerOrUserid</name>
@@ -105,8 +259,33 @@
         <dataType>DateTime</dataType>
         <expression>IF({!Get_System_User.RecordTypeIdADI__c}={!$Record.CreatedById__c}, {!$Record.LastModifiedDate__c}, NULL)</expression>
     </formulas>
-    <interviewLabel>Data 360 Contact Sync {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>Data 360 Contact Sync</label>
+    <formulas>
+        <name>varFieldSummaryText</name>
+        <dataType>String</dataType>
+        <expression>IF(
+  NOT(ISBLANK({!$Record.FirstName__c})) || NOT(ISBLANK({!$Record.LastName__c})),
+  TRIM({!$Record.FirstName__c} &amp; &quot; &quot; &amp; {!$Record.LastName__C}),
+  &quot;&quot;
+) &amp; IF(
+  NOT(ISBLANK({!$Record.Global_Contact_ID__c})),
+  &quot; | Global_Contact_ID__c: &quot; &amp; {!$Record.Global_Contact_ID__c},
+  &quot;&quot;
+) &amp; IF(
+  NOT(ISBLANK({!$Record.Global_Account_ID_c__c})),
+  &quot; | Global_Account_ID_c__c: &quot; &amp; {!$Record.Global_Account_ID_c__c},
+  &quot;&quot;
+)&amp; IF(
+  NOT(ISBLANK({!$Record.Email__c})),
+  &quot; | Email: &quot; &amp; {!$Record.Email__c},
+  &quot;&quot;
+) &amp; IF(
+  NOT(ISBLANK({!$Record.Phone__c})),
+  &quot; | Phone: &quot; &amp; {!$Record.Phone__c},
+  &quot;&quot;
+)</expression>
+    </formulas>
+    <interviewLabel>Data 360 Contact Upsert SNAP to ADI {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Data 360 Contact Upsert SNAP to ADI</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -131,6 +310,9 @@
         <label>Create ADI Contacts</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <faultConnector>
+            <targetReference>Log_Create_Contact_Error_SNAP_to_ADI</targetReference>
+        </faultConnector>
         <inputAssignments>
             <field>AccountId</field>
             <value>
@@ -264,6 +446,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Contact_Rating_Combined__c</field>
+            <value>
+                <elementReference>$Record.Contact_Rating_Combined_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Contact_Role__c</field>
             <value>
                 <elementReference>$Record.Contact_Role_c__c</elementReference>
@@ -306,6 +494,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Data_Cloud_Indicator__c</field>
+            <value>
+                <stringValue>Originated SNAP</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Dealer_Contact_for_Leads__c</field>
             <value>
                 <elementReference>$Record.Dealer_Contact_for_Leads_c__c</elementReference>
@@ -327,6 +521,12 @@
             <field>Department</field>
             <value>
                 <elementReference>$Record.Department__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Description</field>
+            <value>
+                <elementReference>$Record.Description__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -354,6 +554,18 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Global_Account_Id__c</field>
+            <value>
+                <elementReference>$Record.Global_Account_ID_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Global_Contact_ID__c</field>
+            <value>
+                <elementReference>$Record.Global_Contact_ID__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>HomePhone</field>
             <value>
                 <elementReference>$Record.HomePhone__c</elementReference>
@@ -378,6 +590,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Is_System_Update__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>KPI_Contact__c</field>
             <value>
                 <elementReference>$Record.KPI_Contact_c__c</elementReference>
@@ -390,9 +608,9 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Last_Synced_Timestamp__c</field>
+            <field>Last_Sync_Timestamp__c</field>
             <value>
-                <elementReference>SetRecordLastSyncDatetimetoLastmodifiedornull</elementReference>
+                <elementReference>$Record.Last_Sync_Timestamp__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -612,6 +830,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Snap_Id__c</field>
+            <value>
+                <elementReference>$Record.Id__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Survey_C_Sat_Tech__c</field>
             <value>
                 <elementReference>$Record.Survey_C_Sat_Tech_c__c</elementReference>
@@ -654,7 +878,7 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Type__c</field>
+            <field>Type_Snap__c</field>
             <value>
                 <elementReference>$Record.Type_c__c</elementReference>
             </value>
@@ -721,10 +945,17 @@
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>Snap_Id__c</field>
+            <field>Global_Account_ID__c</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>$Record.AccountId__c</elementReference>
+                <elementReference>$Record.Global_Account_ID_c__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Global_Account_ID__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -759,9 +990,9 @@
         <label>Get CRM Record by Global ID</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Is_Snap_Contact</targetReference>
+            <targetReference>Get_AccountId</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -771,9 +1002,12 @@
                 <elementReference>$Record.Global_Contact_ID__c</elementReference>
             </value>
         </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Contact</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
+        <outputReference>ExistingContact</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Global_Contact_ID__c</queriedFields>
+        <queriedFields>Snap_Id__c</queriedFields>
+        <queriedFields>Last_Sync_Timestamp__c</queriedFields>
     </recordLookups>
     <recordLookups>
         <name>Get_Owner_ID</name>
@@ -786,7 +1020,7 @@
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>Id</field>
+            <field>Snap_Id__c</field>
             <operator>EqualTo</operator>
             <value>
                 <elementReference>$Record.OwnerId__c</elementReference>
@@ -809,16 +1043,22 @@
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>Id</field>
+            <field>Snap_Id__c</field>
             <operator>EqualTo</operator>
             <value>
                 <elementReference>$Record.ReportsToId__c</elementReference>
             </value>
         </filters>
+        <filters>
+            <field>Snap_Id__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>User</object>
+        <object>Contact</object>
         <queriedFields>Id</queriedFields>
-        <queriedFields>Snap_Id__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
@@ -851,7 +1091,7 @@
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Record_Update_Or_Create</targetReference>
+            <targetReference>Is_Snap_Contact</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -870,6 +1110,9 @@
         <label>Update SNAP Contact Records in ADI</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <faultConnector>
+            <targetReference>Log_Contact_Update_Error_SNAP_to_ADI</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Global_Contact_ID__c</field>
@@ -1011,6 +1254,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Contact_Rating_Combined__c</field>
+            <value>
+                <elementReference>$Record.Contact_Rating_Combined_c__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Contact_Role__c</field>
             <value>
                 <elementReference>$Record.Contact_Role_c__c</elementReference>
@@ -1053,6 +1302,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Data_Cloud_Indicator__c</field>
+            <value>
+                <stringValue>Originated SNAP</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Dealer_Contact_for_Leads__c</field>
             <value>
                 <elementReference>$Record.Dealer_Contact_for_Leads_c__c</elementReference>
@@ -1074,6 +1329,12 @@
             <field>Department</field>
             <value>
                 <elementReference>$Record.Department__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Description</field>
+            <value>
+                <elementReference>$Record.Description__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1101,9 +1362,9 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>HomePhone</field>
+            <field>Global_Account_Id__c</field>
             <value>
-                <elementReference>$Record.HomePhone__c</elementReference>
+                <elementReference>$Record.Global_Account_ID_c__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1125,6 +1386,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Is_System_Update__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>KPI_Contact__c</field>
             <value>
                 <elementReference>$Record.KPI_Contact_c__c</elementReference>
@@ -1137,9 +1404,9 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Last_Synced_Timestamp__c</field>
+            <field>Last_Sync_Timestamp__c</field>
             <value>
-                <elementReference>$Record.LastModifiedDate__c</elementReference>
+                <elementReference>$Record.Last_Sync_Timestamp__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1359,6 +1626,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Snap_Id__c</field>
+            <value>
+                <elementReference>$Record.Id__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Survey_C_Sat_Tech__c</field>
             <value>
                 <elementReference>$Record.Survey_C_Sat_Tech_c__c</elementReference>
@@ -1401,7 +1674,7 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Type__c</field>
+            <field>Type_Snap__c</field>
             <value>
                 <elementReference>$Record.Type_c__c</elementReference>
             </value>
@@ -1460,7 +1733,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Get_RT</targetReference>
+            <targetReference>Is_Snap_Sync</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -1471,15 +1744,37 @@
             </value>
         </filters>
         <filters>
-            <field>Global_Contact_ID__c</field>
-            <operator>NotEqualTo</operator>
+            <field>Data_Cloud_Indicator__c</field>
+            <operator>EqualTo</operator>
             <value>
-                <stringValue></stringValue>
+                <stringValue>Originated SNAP</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Account_Is_Inactive_c__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Inactive_c__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
             </value>
         </filters>
         <object>Contact_SNAP__dlm</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>DataCloudDataChange</triggerType>
     </start>
-    <status>Draft</status>
+    <status>Obsolete</status>
+    <variables>
+        <name>ExistingContact</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Contact</objectType>
+    </variables>
 </Flow>
